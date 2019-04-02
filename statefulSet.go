@@ -14,9 +14,9 @@ func CreateStatefulSet(input *Input) (*Output, error) {
 	}
 	ss := input.Data.(*appsv1.StatefulSet)
 	if ss.Namespace == "" {
-		input.Namespace = "default"
+		ss.Namespace = "default"
 	}
-	ss, err := input.Client.AppsV1().StatefulSets(input.Namespace).Create(ss)
+	ss, err := input.Client.AppsV1().StatefulSets(ss.Namespace).Create(ss)
 	if err != nil {
 		output.Verified = false
 		return &output, err

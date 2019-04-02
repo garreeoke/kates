@@ -14,9 +14,9 @@ func CreateService(input *Input) (*Output, error) {
 	}
 	svc := input.Data.(*apiv1.Service)
 	if svc.Namespace == "" {
-		input.Namespace = "default"
+		svc.Namespace = "default"
 	}
-	svc, err := input.Client.CoreV1().Services(input.Namespace).Create(svc)
+	svc, err := input.Client.CoreV1().Services(svc.Namespace).Create(svc)
 	if err != nil {
 		output.Verified = false
 		return &output, err

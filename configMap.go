@@ -14,9 +14,9 @@ func CreateConfigMap(input *Input) (*Output, error) {
 	}
 	cm := input.Data.(*apiv1.ConfigMap)
 	if cm.Namespace == "" {
-		input.Namespace = "default"
+		cm.Namespace = "default"
 	}
-	cm, err := input.Client.CoreV1().ConfigMaps(input.Namespace).Create(cm)
+	cm, err := input.Client.CoreV1().ConfigMaps(cm.Namespace).Create(cm)
 	if err != nil {
 		output.Verified = false
 		return &output, err

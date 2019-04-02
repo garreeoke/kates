@@ -15,9 +15,9 @@ func CreateDaemonSet(input *Input) (*Output, error) {
 
 	ds := input.Data.(*appsv1.DaemonSet)
 	if ds.Namespace == "" {
-		input.Namespace = "default"
+		ds.Namespace = "default"
 	}
-	ds, err := input.Client.AppsV1().DaemonSets(input.Namespace).Create(ds)
+	ds, err := input.Client.AppsV1().DaemonSets(ds.Namespace).Create(ds)
 	if err != nil {
 		output.Verified = false
 		return &output, err

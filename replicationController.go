@@ -14,9 +14,9 @@ func CreateReplicationController(input *Input) (*Output, error) {
 	}
 	rc := input.Data.(*apiv1.ReplicationController)
 	if rc.Namespace == "" {
-		input.Namespace = "default"
+		rc.Namespace = "default"
 	}
-	rc, err := input.Client.CoreV1().ReplicationControllers(input.Namespace).Create(rc)
+	rc, err := input.Client.CoreV1().ReplicationControllers(rc.Namespace).Create(rc)
 	if err != nil {
 		output.Verified = false
 		return &output, err

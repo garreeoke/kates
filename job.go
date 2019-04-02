@@ -14,9 +14,9 @@ func CreateJob(input *Input) (*Output, error) {
 	}
 	job := input.Data.(*batchv1.Job)
 	if job.Namespace == "" {
-		input.Namespace = "default"
+		job.Namespace = "default"
 	}
-	job, err := input.Client.BatchV1().Jobs(input.Namespace).Create(job)
+	job, err := input.Client.BatchV1().Jobs(job.Namespace).Create(job)
 	if err != nil {
 		output.Verified = false
 		return &output, err

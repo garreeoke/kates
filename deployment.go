@@ -14,9 +14,9 @@ func CreateDeployment(input *Input) (*Output, error) {
 	}
 	deployment := input.Data.(*appsv1.Deployment)
 	if deployment.Namespace == "" {
-		input.Namespace = "default"
+		deployment.Namespace = "default"
 	}
-	deployment, err := input.Client.AppsV1().Deployments(input.Namespace).Create(deployment)
+	deployment, err := input.Client.AppsV1().Deployments(deployment.Namespace).Create(deployment)
 	if err != nil {
 		output.Verified = false
 		/*

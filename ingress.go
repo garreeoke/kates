@@ -14,9 +14,9 @@ func CreateIngress(input *Input) (*Output, error) {
 	}
 	ing := input.Data.(*netv1beta.Ingress)
 	if ing.Namespace == "" {
-		input.Namespace = "default"
+		ing.Namespace = "default"
 	}
-	ing, err := input.Client.NetworkingV1beta1().Ingresses(input.Namespace).Create(ing)
+	ing, err := input.Client.NetworkingV1beta1().Ingresses(ing.Namespace).Create(ing)
 	if err != nil {
 		output.Verified = false
 		return &output, err

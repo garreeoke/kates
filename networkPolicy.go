@@ -14,9 +14,9 @@ func CreateNetworkPolicy(input *Input) (*Output, error) {
 	}
 	np := input.Data.(*netv1.NetworkPolicy)
 	if np.Namespace == "" {
-		input.Namespace = "default"
+		np.Namespace = "default"
 	}
-	np, err := input.Client.NetworkingV1().NetworkPolicies(input.Namespace).Create(np)
+	np, err := input.Client.NetworkingV1().NetworkPolicies(np.Namespace).Create(np)
 	if err != nil {
 		output.Verified = false
 		return &output, err

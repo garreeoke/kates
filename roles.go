@@ -51,9 +51,9 @@ func CreateRole(input *Input) (*Output, error) {
 	}
 	role := input.Data.(*rbacv1.Role)
 	if role.Namespace == "" {
-		input.Namespace = "default"
+		role.Namespace = "default"
 	}
-	role, err := input.Client.RbacV1().Roles(input.Namespace).Create(role)
+	role, err := input.Client.RbacV1().Roles(role.Namespace).Create(role)
 	if err != nil {
 		output.Verified = false
 		return &output, err
@@ -70,9 +70,9 @@ func CreateRoleBindings(input *Input) (*Output, error) {
 	}
 	roleBinding := input.Data.(*rbacv1.RoleBinding)
 	if roleBinding.Namespace == "" {
-		input.Namespace = "default"
+		roleBinding.Namespace = "default"
 	}
-	roleBinding, err := input.Client.RbacV1().RoleBindings(input.Namespace).Create(roleBinding)
+	roleBinding, err := input.Client.RbacV1().RoleBindings(roleBinding.Namespace).Create(roleBinding)
 	if err != nil {
 		output.Verified = false
 		return output, err

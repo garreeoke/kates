@@ -14,9 +14,9 @@ func CreateSecret(input *Input) (*Output, error) {
 	}
 	secret := input.Data.(*apiv1.Secret)
 	if secret.Namespace == "" {
-		input.Namespace = "default"
+		secret.Namespace = "default"
 	}
-	secret, err := input.Client.CoreV1().Secrets(input.Namespace).Create(secret)
+	secret, err := input.Client.CoreV1().Secrets(secret.Namespace).Create(secret)
 	if err != nil {
 		output.Verified = false
 		return &output, err

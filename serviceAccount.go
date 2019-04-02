@@ -14,9 +14,9 @@ func CreateServiceAccount(input *Input) (*Output, error) {
 	}
 	sa := input.Data.(*apiv1.ServiceAccount)
 	if sa.Namespace == "" {
-		input.Namespace = "default"
+		sa.Namespace = "default"
 	}
-	sa, err := input.Client.CoreV1().ServiceAccounts(input.Namespace).Create(sa)
+	sa, err := input.Client.CoreV1().ServiceAccounts(sa.Namespace).Create(sa)
 	if err != nil {
 		output.Verified = false
 		return &output, err
