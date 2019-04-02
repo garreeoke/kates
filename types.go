@@ -5,8 +5,6 @@ import (
 )
 
 type Input struct {
-	// Operation will be either Create, Modify, Delete, and Verify
-	Operation string `json:"operation,omitempty"`
 	Namespace string `json:"namespace,omitempty"`
 	Data interface{} `json:"data,omitempty"`
 	Client *kubernetes.Clientset

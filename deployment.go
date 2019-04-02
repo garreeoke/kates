@@ -3,29 +3,30 @@ package kates
 import (
 	"errors"
 	appsv1 "k8s.io/api/apps/v1"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// Create new deployment
-func CreateDeployment(input *Input) (Output, error) {
+// CreateDeployment new deployment
+func CreateDeployment(input *Input) (*Output, error) {
 
-	var output Output
+	output := Output{}
 	if input.Client == nil {
-		return output, errors.New(" No kubernetes client, cannot connect")
+		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
 	deployment := input.Data.(*appsv1.Deployment)
 	if deployment.Namespace == "" {
 		input.Namespace = "default"
 	}
-	deployment, err := input.Client.AppsV1().Deployments(deployment.Namespace).Create(deployment)
+	deployment, err := input.Client.AppsV1().Deployments(input.Namespace).Create(deployment)
 	if err != nil {
 		output.Verified = false
+		/*
 		err = eventMessages(input, &output, meta_v1.ListOptions{
 			FieldSelector: "involvedObject.name="+deployment.Name,
 		})
-		return output, err
+		*/
+		return &output, err
 	}
-	return output, nil
+	return &output, nil
 }
 
 /*
