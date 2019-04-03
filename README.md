@@ -1,7 +1,4 @@
 # Kates #
 
-## Key functionality ##
-* Functions to work with kubernetes client and api
-* Initially will just do creates, but will build verification and other functionality too
-
-##Environment Variables##
+Library to interact with the kubernetes go-client.  Intially, it will just do creates, but future will have 
+functions to do other actions (delete, verify, modify).
