@@ -5,10 +5,10 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
-// CreateStatefulSet new statefulset
-func CreateStatefulSet(input *Input) (*Output, error) {
-
+// StatefulSet
+func StatefulSet(input *Input) (*Output, error) {
 	output := Output{}
+	var err error
 	if input.Client == nil {
 		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
@@ -16,7 +16,13 @@ func CreateStatefulSet(input *Input) (*Output, error) {
 	if ss.Namespace == "" {
 		ss.Namespace = "default"
 	}
-	ss, err := input.Client.AppsV1().StatefulSets(ss.Namespace).Create(ss)
+	switch input.Operation {
+	case OpCreate:
+		ss, err = input.Client.AppsV1().StatefulSets(ss.Namespace).Create(ss)
+	case OpModify:
+		ss, err = input.Client.AppsV1().StatefulSets(ss.Namespace).Update(ss)
+	}
+	output.Result = ss
 	if err != nil {
 		output.Verified = false
 		return &output, err

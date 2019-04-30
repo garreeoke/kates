@@ -10,15 +10,25 @@ import (
 //Roles
 //RoleBindings
 
-// CreateClusterRoles new cluster roles
-func CreateClusterRoles(input *Input) (*Output, error) {
+// ClusterRoles new cluster roles
+func ClusterRoles(input *Input) (*Output, error) {
 
 	output := Output{}
+	var err error
 	if input.Client == nil {
 		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
-	crs := input.Data.(*rbacv1.ClusterRole)
-	crs, err := input.Client.RbacV1().ClusterRoles().Create(crs)
+	cr := input.Data.(*rbacv1.ClusterRole)
+	if cr.Namespace == "" {
+		cr.Namespace = "default"
+	}
+	switch input.Operation {
+	case OpCreate:
+		cr, err = input.Client.RbacV1().ClusterRoles().Create(cr)
+	case OpModify:
+		cr, err = input.Client.RbacV1().ClusterRoles().Update(cr)
+	}
+	output.Result = cr
 	if err != nil {
 		output.Verified = false
 		return &output, err
@@ -27,25 +37,36 @@ func CreateClusterRoles(input *Input) (*Output, error) {
 }
 
 // CreateClusterRoleBindings new ClusterRoleBindings
-func CreateClusterRoleBindings(input *Input) (*Output, error) {
+func ClusterRoleBindings(input *Input) (*Output, error) {
 
 	output := Output{}
+	var err error
 	if input.Client == nil {
 		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
 	crb := input.Data.(*rbacv1.ClusterRoleBinding)
-	crb, err := input.Client.RbacV1().ClusterRoleBindings().Create(crb)
+	if crb.Namespace == "" {
+		crb.Namespace = "default"
+	}
+	switch input.Operation {
+	case OpCreate:
+		crb, err = input.Client.RbacV1().ClusterRoleBindings().Create(crb)
+	case OpModify:
+		crb, err = input.Client.RbacV1().ClusterRoleBindings().Update(crb)
+	}
+	output.Result = crb
 	if err != nil {
-		//output.Verified = false
+		output.Verified = false
 		return &output, err
 	}
 	return &output, nil
 }
 
-//CreateRole new role
-func CreateRole(input *Input) (*Output, error) {
+//Role new role
+func Role(input *Input) (*Output, error) {
 
 	output := Output{}
+	var err error
 	if input.Client == nil {
 		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
@@ -53,7 +74,13 @@ func CreateRole(input *Input) (*Output, error) {
 	if role.Namespace == "" {
 		role.Namespace = "default"
 	}
-	role, err := input.Client.RbacV1().Roles(role.Namespace).Create(role)
+	switch input.Operation {
+	case OpCreate:
+		role, err = input.Client.RbacV1().Roles(role.Namespace).Create(role)
+	case OpModify:
+		role, err = input.Client.RbacV1().Roles(role.Namespace).Update(role)
+	}
+	output.Result = role
 	if err != nil {
 		output.Verified = false
 		return &output, err
@@ -61,21 +88,28 @@ func CreateRole(input *Input) (*Output, error) {
 	return &output, nil
 }
 
-// CreateRoleBindings new RoleBindings
-func CreateRoleBindings(input *Input) (*Output, error) {
+// RoleBindings new RoleBindings
+func RoleBindings(input *Input) (*Output, error) {
 
-	var output *Output
+	output := Output{}
+	var err error
 	if input.Client == nil {
-		return output, errors.New(" No kubernetes client, cannot connect")
+		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
-	roleBinding := input.Data.(*rbacv1.RoleBinding)
-	if roleBinding.Namespace == "" {
-		roleBinding.Namespace = "default"
+	rb := input.Data.(*rbacv1.RoleBinding)
+	if rb.Namespace == "" {
+		rb.Namespace = "default"
 	}
-	roleBinding, err := input.Client.RbacV1().RoleBindings(roleBinding.Namespace).Create(roleBinding)
+	switch input.Operation {
+	case OpCreate:
+		rb, err = input.Client.RbacV1().RoleBindings(rb.Namespace).Create(rb)
+	case OpModify:
+		rb, err = input.Client.RbacV1().RoleBindings(rb.Namespace).Update(rb)
+	}
+	output.Result = rb
 	if err != nil {
 		output.Verified = false
-		return output, err
+		return &output, err
 	}
-	return output, nil
+	return &output, nil
 }

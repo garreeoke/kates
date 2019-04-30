@@ -5,18 +5,24 @@ import (
 	netv1beta "k8s.io/api/networking/v1beta1"
 )
 
-// CreateIngress new Ingress
-func CreateIngress(input *Input) (*Output, error) {
-
+// Ingress
+func Ingress(input *Input) (*Output, error) {
 	output := Output{}
+	var err error
 	if input.Client == nil {
 		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
-	ing := input.Data.(*netv1beta.Ingress)
-	if ing.Namespace == "" {
-		ing.Namespace = "default"
+	ingress := input.Data.(*netv1beta.Ingress)
+	if ingress.Namespace == "" {
+		ingress.Namespace = "default"
 	}
-	ing, err := input.Client.NetworkingV1beta1().Ingresses(ing.Namespace).Create(ing)
+	switch input.Operation {
+	case OpCreate:
+		ingress, err = input.Client.NetworkingV1beta1().Ingresses(ingress.Namespace).Create(ingress)
+	case OpModify:
+		ingress, err = input.Client.NetworkingV1beta1().Ingresses(ingress.Namespace).Update(ingress)
+	}
+	output.Result = ingress
 	if err != nil {
 		output.Verified = false
 		return &output, err

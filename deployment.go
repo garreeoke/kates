@@ -5,10 +5,10 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
-// CreateDeployment new deployment
-func CreateDeployment(input *Input) (*Output, error) {
-
+// Deployment
+func Deployment(input *Input) (*Output, error) {
 	output := Output{}
+	var err error
 	if input.Client == nil {
 		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
@@ -16,14 +16,15 @@ func CreateDeployment(input *Input) (*Output, error) {
 	if deployment.Namespace == "" {
 		deployment.Namespace = "default"
 	}
-	deployment, err := input.Client.AppsV1().Deployments(deployment.Namespace).Create(deployment)
+	switch input.Operation {
+	case OpCreate:
+		deployment, err = input.Client.AppsV1().Deployments(deployment.Namespace).Create(deployment)
+	case OpModify:
+		deployment, err = input.Client.AppsV1().Deployments(deployment.Namespace).Update(deployment)
+	}
+	output.Result = deployment
 	if err != nil {
 		output.Verified = false
-		/*
-		err = eventMessages(input, &output, meta_v1.ListOptions{
-			FieldSelector: "involvedObject.name="+deployment.Name,
-		})
-		*/
 		return &output, err
 	}
 	return &output, nil

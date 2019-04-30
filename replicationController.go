@@ -5,10 +5,11 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-// CreateReplicationController new RC
-func CreateReplicationController(input *Input) (*Output, error) {
 
+// ReplicationController
+func ReplicationController(input *Input) (*Output, error) {
 	output := Output{}
+	var err error
 	if input.Client == nil {
 		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
@@ -16,7 +17,13 @@ func CreateReplicationController(input *Input) (*Output, error) {
 	if rc.Namespace == "" {
 		rc.Namespace = "default"
 	}
-	rc, err := input.Client.CoreV1().ReplicationControllers(rc.Namespace).Create(rc)
+	switch input.Operation {
+	case OpCreate:
+		rc, err = input.Client.CoreV1().ReplicationControllers(rc.Namespace).Create(rc)
+	case OpModify:
+		rc, err = input.Client.CoreV1().ReplicationControllers(rc.Namespace).Update(rc)
+	}
+	output.Result = rc
 	if err != nil {
 		output.Verified = false
 		return &output, err

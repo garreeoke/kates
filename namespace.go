@@ -8,8 +8,30 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-// CreateNamespace new namespace
-func CreateNamespace(input *Input) (*Output, error) {
+// Namespace
+func Namespace(input *Input) (*Output, error) {
+	output := Output{}
+	var err error
+	if input.Client == nil {
+		return &output, errors.New(" No kubernetes client, cannot connect")
+	}
+	nameSpace := input.Data.(*apiv1.Namespace)
+	switch input.Operation {
+	case OpCreate:
+		nameSpace, err = input.Client.CoreV1().Namespaces().Create(nameSpace)
+	case OpModify:
+		nameSpace, err = input.Client.CoreV1().Namespaces().Update(nameSpace)
+	}
+	output.Result = nameSpace
+	if err != nil {
+		output.Verified = false
+		return &output, err
+	}
+	return &output, nil
+}
+
+// VerifyNamespace
+func VerifyNamespace(input *Input) (*Output, error) {
 
 	output := Output{}
 	//var nameSpace apiv1.Namespace

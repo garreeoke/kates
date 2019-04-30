@@ -5,10 +5,10 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-// CreateServiceAccount new service account
-func CreateServiceAccount(input *Input) (*Output, error) {
-
+// ServiceAccount
+func ServiceAccount(input *Input) (*Output, error) {
 	output := Output{}
+	var err error
 	if input.Client == nil {
 		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
@@ -16,7 +16,13 @@ func CreateServiceAccount(input *Input) (*Output, error) {
 	if sa.Namespace == "" {
 		sa.Namespace = "default"
 	}
-	sa, err := input.Client.CoreV1().ServiceAccounts(sa.Namespace).Create(sa)
+	switch input.Operation {
+	case OpCreate:
+		sa, err = input.Client.CoreV1().ServiceAccounts(sa.Namespace).Create(sa)
+	case OpModify:
+		sa, err = input.Client.CoreV1().ServiceAccounts(sa.Namespace).Update(sa)
+	}
+	output.Result = sa
 	if err != nil {
 		output.Verified = false
 		return &output, err

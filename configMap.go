@@ -5,10 +5,10 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-// CreateConfigMap new config
-func CreateConfigMap(input *Input) (*Output, error) {
-
+// ConfigMap - ConfigMap operations
+func ConfigMap(input *Input) (*Output, error) {
 	output := Output{}
+	var err error
 	if input.Client == nil {
 		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
@@ -16,7 +16,13 @@ func CreateConfigMap(input *Input) (*Output, error) {
 	if cm.Namespace == "" {
 		cm.Namespace = "default"
 	}
-	cm, err := input.Client.CoreV1().ConfigMaps(cm.Namespace).Create(cm)
+	switch input.Operation {
+	case OpCreate:
+		cm, err = input.Client.CoreV1().ConfigMaps(cm.Namespace).Create(cm)
+	case OpModify:
+		cm, err = input.Client.CoreV1().ConfigMaps(cm.Namespace).Update(cm)
+	}
+	output.Result = cm
 	if err != nil {
 		output.Verified = false
 		return &output, err

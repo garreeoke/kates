@@ -5,10 +5,10 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-// CreateSecret new secret
-func CreateSecret(input *Input) (*Output, error) {
-
+// Secret
+func Secret(input *Input) (*Output, error) {
 	output := Output{}
+	var err error
 	if input.Client == nil {
 		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
@@ -16,7 +16,13 @@ func CreateSecret(input *Input) (*Output, error) {
 	if secret.Namespace == "" {
 		secret.Namespace = "default"
 	}
-	secret, err := input.Client.CoreV1().Secrets(secret.Namespace).Create(secret)
+	switch input.Operation {
+	case OpCreate:
+		secret, err = input.Client.CoreV1().Secrets(secret.Namespace).Create(secret)
+	case OpModify:
+		secret, err = input.Client.CoreV1().Secrets(secret.Namespace).Update(secret)
+	}
+	output.Result = secret
 	if err != nil {
 		output.Verified = false
 		return &output, err

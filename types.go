@@ -4,8 +4,14 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+const (
+	OpCreate = "create"
+	OpModify = "modify"
+)
+
 type Input struct {
 	Namespace string `json:"namespace,omitempty"`
+	Operation string `json:"operation,omitempty"`
 	Data interface{} `json:"data,omitempty"`
 	Client *kubernetes.Clientset
 }

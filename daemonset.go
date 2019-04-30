@@ -5,19 +5,24 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
-//CreateDaemonSet new daemonset
-func CreateDaemonSet(input *Input) (*Output, error) {
-
+// DaemonSet
+func DaemonSet(input *Input) (*Output, error) {
 	output := Output{}
+	var err error
 	if input.Client == nil {
 		return &output, errors.New(" No kubernetes client, cannot connect")
 	}
-
-	ds := input.Data.(*appsv1.DaemonSet)
-	if ds.Namespace == "" {
-		ds.Namespace = "default"
+	daemonSet := input.Data.(*appsv1.DaemonSet)
+	if daemonSet.Namespace == "" {
+		daemonSet.Namespace = "default"
 	}
-	ds, err := input.Client.AppsV1().DaemonSets(ds.Namespace).Create(ds)
+	switch input.Operation {
+	case OpCreate:
+		daemonSet, err = input.Client.AppsV1().DaemonSets(daemonSet.Namespace).Create(daemonSet)
+	case OpModify:
+		daemonSet, err = input.Client.AppsV1().DaemonSets(daemonSet.Namespace).Update(daemonSet)
+	}
+	output.Result = daemonSet
 	if err != nil {
 		output.Verified = false
 		return &output, err
