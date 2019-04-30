@@ -6,7 +6,8 @@ import (
 
 const (
 	OpCreate = "create"
-	OpModify = "modify"
+	OpUpdate = "update"
+	OpDynamic = "dynamic"
 )
 
 type Input struct {

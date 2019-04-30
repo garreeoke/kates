@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1 "k8s.io/api/core/v1"
 )
 
@@ -19,8 +19,15 @@ func Namespace(input *Input) (*Output, error) {
 	switch input.Operation {
 	case OpCreate:
 		nameSpace, err = input.Client.CoreV1().Namespaces().Create(nameSpace)
-	case OpModify:
+	case OpUpdate:
 		nameSpace, err = input.Client.CoreV1().Namespaces().Update(nameSpace)
+	case OpDynamic:
+		_, err := input.Client.CoreV1().Namespaces().Get(nameSpace.Name, metav1.GetOptions{})
+		if err != nil {
+			nameSpace, err = input.Client.CoreV1().Namespaces().Create(nameSpace)
+		} else {
+			nameSpace, err = input.Client.CoreV1().Namespaces().Update(nameSpace)
+		}
 	}
 	output.Result = nameSpace
 	if err != nil {
@@ -48,7 +55,7 @@ func VerifyNamespace(input *Input) (*Output, error) {
 	// Verify
 	for i := 1; i <= 10 && nameSpace.Status.Phase != "Active"; i++ {
 		time.Sleep(1000 *time.Millisecond)
-		nameSpace, err = input.Client.CoreV1().Namespaces().Get(nameSpace.Name, meta_v1.GetOptions{})
+		nameSpace, err = input.Client.CoreV1().Namespaces().Get(nameSpace.Name, metav1.GetOptions{})
 		if err != nil {
 			return &output, nil
 		}
@@ -58,7 +65,7 @@ func VerifyNamespace(input *Input) (*Output, error) {
 	} else {
 		output.Verified = false
 		// Get the events
-		err = eventMessages(input, &output, meta_v1.ListOptions{
+		err = eventMessages(input, &output, metav1.ListOptions{
 			FieldSelector: "involvedObject.name="+nameSpace.Name,
 		})
 

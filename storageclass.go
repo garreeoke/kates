@@ -3,6 +3,7 @@ package kates
 import (
 	"errors"
 	storagev1 "k8s.io/api/storage/v1"
+	"log"
 )
 
 // StorageClass
@@ -14,10 +15,11 @@ func StorageClass(input *Input) (*Output, error) {
 	}
 	sc := input.Data.(*storagev1.StorageClass)
 	switch input.Operation {
+	// Only supporting create on storage class
 	case OpCreate:
 		sc, err = input.Client.StorageV1().StorageClasses().Create(sc)
-	case OpModify:
-		sc, err = input.Client.StorageV1().StorageClasses().Update(sc)
+	default:
+		log.Println(input.Operation + " action not supported for StorageClasses")
 	}
 	output.Result = sc
 	if err != nil {

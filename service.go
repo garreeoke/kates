@@ -3,6 +3,7 @@ package kates
 import (
 	"errors"
 	apiv1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // Service
@@ -19,8 +20,15 @@ func Service(input *Input) (*Output, error) {
 	switch input.Operation {
 	case OpCreate:
 		service, err = input.Client.CoreV1().Services(service.Namespace).Create(service)
-	case OpModify:
+	case OpUpdate:
 		service, err = input.Client.CoreV1().Services(service.Namespace).Update(service)
+	case OpDynamic:
+		_, err := input.Client.CoreV1().Services(service.Namespace).Get(service.Name, metav1.GetOptions{})
+		if err != nil {
+			service, err = input.Client.CoreV1().Services(service.Namespace).Create(service)
+		} else {
+			service, err = input.Client.CoreV1().Services(service.Namespace).Update(service)
+		}
 	}
 	output.Result = service
 	if err != nil {

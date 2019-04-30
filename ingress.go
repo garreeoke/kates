@@ -3,6 +3,7 @@ package kates
 import (
 	"errors"
 	netv1beta "k8s.io/api/networking/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // Ingress
@@ -19,8 +20,15 @@ func Ingress(input *Input) (*Output, error) {
 	switch input.Operation {
 	case OpCreate:
 		ingress, err = input.Client.NetworkingV1beta1().Ingresses(ingress.Namespace).Create(ingress)
-	case OpModify:
+	case OpUpdate:
 		ingress, err = input.Client.NetworkingV1beta1().Ingresses(ingress.Namespace).Update(ingress)
+	case OpDynamic:
+		_, err := input.Client.NetworkingV1beta1().Ingresses(ingress.Namespace).Get(ingress.Name, metav1.GetOptions{})
+		if err != nil {
+			ingress, err = input.Client.NetworkingV1beta1().Ingresses(ingress.Namespace).Create(ingress)
+		} else {
+			ingress, err = input.Client.NetworkingV1beta1().Ingresses(ingress.Namespace).Update(ingress)
+		}
 	}
 	output.Result = ingress
 	if err != nil {

@@ -3,6 +3,7 @@ package kates
 import (
 	"errors"
 	batchv1 "k8s.io/api/batch/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // Job
@@ -19,8 +20,15 @@ func Job(input *Input) (*Output, error) {
 	switch input.Operation {
 	case OpCreate:
 		job, err = input.Client.BatchV1().Jobs(job.Namespace).Create(job)
-	case OpModify:
+	case OpUpdate:
 		job, err = input.Client.BatchV1().Jobs(job.Namespace).Update(job)
+	case OpDynamic:
+		_, err := input.Client.BatchV1().Jobs(job.Namespace).Get(job.Name, metav1.GetOptions{})
+		if err != nil {
+			job, err = input.Client.BatchV1().Jobs(job.Namespace).Create(job)
+		} else {
+			job, err = input.Client.BatchV1().Jobs(job.Namespace).Update(job)
+		}
 	}
 	output.Result = job
 	if err != nil {

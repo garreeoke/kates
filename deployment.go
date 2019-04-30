@@ -3,6 +3,7 @@ package kates
 import (
 	"errors"
 	appsv1 "k8s.io/api/apps/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // Deployment
@@ -19,8 +20,15 @@ func Deployment(input *Input) (*Output, error) {
 	switch input.Operation {
 	case OpCreate:
 		deployment, err = input.Client.AppsV1().Deployments(deployment.Namespace).Create(deployment)
-	case OpModify:
+	case OpUpdate:
 		deployment, err = input.Client.AppsV1().Deployments(deployment.Namespace).Update(deployment)
+	case OpDynamic:
+		_, err := input.Client.AppsV1().Deployments(deployment.Namespace).Get(deployment.Name, metav1.GetOptions{})
+		if err != nil {
+			deployment, err = input.Client.AppsV1().Deployments(deployment.Namespace).Create(deployment)
+		} else {
+			deployment, err = input.Client.AppsV1().Deployments(deployment.Namespace).Update(deployment)
+		}
 	}
 	output.Result = deployment
 	if err != nil {

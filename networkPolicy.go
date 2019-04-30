@@ -3,6 +3,7 @@ package kates
 import (
 	"errors"
 	netv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // NetworkPolicy
@@ -19,8 +20,15 @@ func NetworkPolicy(input *Input) (*Output, error) {
 	switch input.Operation {
 	case OpCreate:
 		np, err = input.Client.NetworkingV1().NetworkPolicies(np.Namespace).Create(np)
-	case OpModify:
+	case OpUpdate:
 		np, err = input.Client.NetworkingV1().NetworkPolicies(np.Namespace).Update(np)
+	case OpDynamic:
+		_, err := input.Client.NetworkingV1().NetworkPolicies(np.Namespace).Get(np.Name, metav1.GetOptions{})
+		if err != nil {
+			np, err = input.Client.NetworkingV1().NetworkPolicies(np.Namespace).Create(np)
+		} else {
+			np, err = input.Client.NetworkingV1().NetworkPolicies(np.Namespace).Update(np)
+		}
 	}
 	output.Result = np
 	if err != nil {
