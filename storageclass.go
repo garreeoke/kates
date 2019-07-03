@@ -16,7 +16,7 @@ func StorageClass(input *Input) (*Output, error) {
 	sc := input.Data.(*storagev1.StorageClass)
 	switch input.Operation {
 	// Only supporting create on storage class
-	case OpCreate:
+	case OpCreate, OpDynamic:
 		sc, err = input.Client.StorageV1().StorageClasses().Create(sc)
 	default:
 		log.Println(input.Operation + " action not supported for StorageClasses")
